@@ -7,13 +7,13 @@ ENTITY practica_uno IS
     PORT (
         reloj : IN STD_LOGIC;
         reinicio : IN STD_LOGIC;
-        led : OUT STD_LOGIC;
         display_horas_decenas : OUT STD_LOGIC_VECTOR(6 DOWNTO 0);
         display_horas_unidades : OUT STD_LOGIC_VECTOR(6 DOWNTO 0);
         display_minutos_decenas : OUT STD_LOGIC_VECTOR(6 DOWNTO 0);
         display_minutos_unidades : OUT STD_LOGIC_VECTOR(6 DOWNTO 0);
         display_segundos_decenas : OUT STD_LOGIC_VECTOR(6 DOWNTO 0);
-        display_segundos_unidades : OUT STD_LOGIC_VECTOR(6 DOWNTO 0)
+        display_segundos_unidades : OUT STD_LOGIC_VECTOR(6 DOWNTO 0);
+        led : OUT STD_LOGIC
     );
 END practica_uno;
 
@@ -46,6 +46,9 @@ ARCHITECTURE Behavioral OF practica_uno IS
     SIGNAL digito_horas_decenas: INTEGER := 0;
     SIGNAL digito_horas_unidades: INTEGER := 0;
 
+    -- Declaración de la señal para el LED
+    SIGNAL senial_led : STD_LOGIC := '0';
+
     --Función para convertir un dígito a segmentos
     FUNCTION Conversion_Segmentos(DIGITO : INTEGER) RETURN STD_LOGIC_VECTOR IS
     BEGIN
@@ -65,6 +68,8 @@ ARCHITECTURE Behavioral OF practica_uno IS
     END FUNCTION;
 
 BEGIN
+    led <= senial_led;
+
     PROCESS (reloj, reinicio)
     BEGIN
         IF reinicio = '0' THEN
@@ -73,11 +78,12 @@ BEGIN
             horas <= "00000";
             estado_presente <= espera;
             contador <= 0;
+            senial_led <= '0';
         ELSIF rising_edge(reloj) THEN
             IF contador = MAX_COUNT - 1 THEN
                 contador <= 0;
                 estado_presente <= estado_siguiente;
-                led <= '1';
+                senial_led <= NOT senial_led;
                 CASE estado_presente IS
                     WHEN espera =>
                         estado_siguiente <= cuenta_segundos;
@@ -107,7 +113,6 @@ BEGIN
                 END CASE;
             ELSE
                 contador <= contador + 1;
-                led <= '0';
             END IF;
         END IF;
     END PROCESS;
