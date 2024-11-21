@@ -89,18 +89,18 @@ BEGIN
                 senial_led <= NOT senial_led;
                 CASE estado_presente IS
                     WHEN espera =>
+                        estado_siguiente <= cuenta_segundos;
+                    WHEN cuenta_segundos =>
                         IF confirmacion_ajuste = '1' THEN
                             estado_siguiente <= ajuste;
                         ELSE
-                            estado_siguiente <= cuenta_segundos;
-                        END IF;
-                    WHEN cuenta_segundos =>
-                        IF segundos = "111011" THEN
-                            segundos <= "000000";
-                            estado_siguiente <= cuenta_minutos;
-                        ELSE
-                            segundos <= segundos + 1;
-                            estado_siguiente <= cuenta_segundos;
+                            IF segundos = "111011" THEN
+                                segundos <= "000000";
+                                estado_siguiente <= cuenta_minutos;
+                            ELSE
+                                segundos <= segundos + 1;
+                                estado_siguiente <= cuenta_segundos;
+                            END IF;
                         END IF;
                     WHEN cuenta_minutos =>
                         IF minutos = "111011" THEN
