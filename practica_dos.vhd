@@ -7,6 +7,9 @@ ENTITY practica_uno IS
     PORT (
         reloj : IN STD_LOGIC;
         reinicio : IN STD_LOGIC;
+        confirmacion_ajuste : IN STD_LOGIC;
+        ajuste_horas : IN STD_LOGIC_VECTOR(4 DOWNTO 0);
+        ajuste_minutos : IN STD_LOGIC_VECTOR(5 DOWNTO 0);
         display_horas_decenas : OUT STD_LOGIC_VECTOR(6 DOWNTO 0);
         display_horas_unidades : OUT STD_LOGIC_VECTOR(6 DOWNTO 0);
         display_minutos_decenas : OUT STD_LOGIC_VECTOR(6 DOWNTO 0);
@@ -26,7 +29,7 @@ ARCHITECTURE Behavioral OF practica_uno IS
     SIGNAL contador : INTEGER := 0;
     CONSTANT MAX_COUNT : INTEGER := 50000000;
 
-    TYPE estado IS (espera, cuenta_segundos, cuenta_minutos, cuenta_horas);
+    TYPE estado IS (espera, cuenta_segundos, cuenta_minutos, cuenta_horas, ajuste);
     SIGNAL estado_presente, estado_siguiente : estado := espera;
 
     -- Declaración de los números decimales para mostrar en los displays
@@ -86,7 +89,11 @@ BEGIN
                 senial_led <= NOT senial_led;
                 CASE estado_presente IS
                     WHEN espera =>
-                        estado_siguiente <= cuenta_segundos;
+                        IF confirmacion_ajuste = '1' THEN
+                            estado_siguiente <= ajuste;
+                        ELSE
+                            estado_siguiente <= cuenta_segundos;
+                        END IF;
                     WHEN cuenta_segundos =>
                         IF segundos = "111011" THEN
                             segundos <= "000000";
@@ -110,6 +117,15 @@ BEGIN
                             horas <= horas + 1;
                         END IF;
                         estado_siguiente <= cuenta_segundos;
+                    WHEN ajuste =>
+                        IF confirmacion_ajuste = '0' THEN
+                            estado_siguiente <= espera;
+                        ELSE
+                            horas <= ajuste_horas;
+                            minutos <= ajuste_minutos;
+                            segundos <= "000000";
+                            estado_siguiente <= ajuste;
+                        END IF;
                 END CASE;
             ELSE
                 contador <= contador + 1;
