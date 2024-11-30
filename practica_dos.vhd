@@ -148,7 +148,7 @@ BEGIN
                         IF minutos = "111011" THEN
                             minutos <= "000000";
                             estado_siguiente <= cuenta_horas;
-                        -- Si no, se incrementa en 1 y se mantiene en el mismo estado
+                        -- Si no, se incrementa en 1 y se pasa al estado de segundos
                         ELSE
                             minutos <= minutos + 1;
                             estado_siguiente <= cuenta_segundos;
@@ -157,17 +157,17 @@ BEGIN
                         -- Si las horas llegan a 23, se reinician a 0
                         IF horas = "10111" THEN
                             horas <= "00000";
-                        -- Si no, se incrementa en 1
+                        -- Si no, se incrementa en 1 y se pasa al estado de segundos
                         ELSE
                             horas <= horas + 1;
+                            estado_siguiente <= cuenta_segundos;
                         END IF;
-                        -- Se cambia al estado de segundos
-                        estado_siguiente <= cuenta_segundos;
                     WHEN ajuste =>
                         -- Si se desactiva la confirmación, se cambia al estado de espera
                         IF confirmacion_ajuste = '0' THEN
                             estado_siguiente <= espera;
                         -- Si no, se ajustan las horas y minutos a su correspondiente entrada
+                        -- y se mantiene en el mismo estado
                         ELSE
                             horas <= ajuste_horas;
                             minutos <= ajuste_minutos;
